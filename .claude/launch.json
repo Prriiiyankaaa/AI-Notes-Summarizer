@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "notes-summarizer",
+      "runtimeExecutable": "/Users/priyanka/Downloads/notes-summarizer/.venv/bin/python",
+      "runtimeArgs": ["app.py"],
+      "port": 5002
+    }
+  ]
+}

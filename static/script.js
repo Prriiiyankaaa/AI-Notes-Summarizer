@@ -1,4 +1,5 @@
 const recordBtn = document.getElementById("recordBtn");
+const recordArea = document.getElementById("recordArea");
 const recordLabel = document.getElementById("recordLabel");
 const recordStatus = document.getElementById("recordStatus");
 const recordTimer = document.getElementById("recordTimer");
@@ -10,6 +11,7 @@ const downloadBtn = document.getElementById("downloadBtn");
 const errorMsg = document.getElementById("errorMsg");
 const audioUpload = document.getElementById("audioUpload");
 const uploadFileName = document.getElementById("uploadFileName");
+const transcriptToggle = document.getElementById("transcriptToggle");
 
 const loadingEl = document.getElementById("loading");
 const loadingText = document.getElementById("loadingText");
@@ -99,8 +101,9 @@ function startRecording() {
   recognition.start();
   startTimer();
   recordBtn.classList.add("recording");
+  recordArea.classList.add("active");
   recordLabel.textContent = "Stop Recording";
-  recordStatus.textContent = "Listening...";
+  recordStatus.textContent = "Listening…";
 }
 
 function stopRecording() {
@@ -108,6 +111,7 @@ function stopRecording() {
   if (recognition) recognition.stop();
   stopTimer();
   recordBtn.classList.remove("recording");
+  recordArea.classList.remove("active");
   recordLabel.textContent = "Start Recording";
   recordStatus.textContent = "Idle";
 }
@@ -251,10 +255,20 @@ downloadBtn.addEventListener("click", () => {
 });
 
 // ---------- Render ----------
+// Transcript toggle
+transcriptToggle.addEventListener("click", () => {
+  const tp = document.getElementById("fullTranscript");
+  const hidden = tp.classList.toggle("hidden");
+  transcriptToggle.textContent = hidden ? "▸ Show" : "▾ Hide";
+});
+
 function renderNotes(notes, transcript) {
   document.getElementById("noteTitle").textContent = notes.title || "Notes";
   document.getElementById("summaryText").textContent = notes.summary || "";
-  document.getElementById("fullTranscript").textContent = transcript;
+  const tp = document.getElementById("fullTranscript");
+  tp.textContent = transcript;
+  tp.classList.add("hidden");
+  transcriptToggle.textContent = "▸ Show";
 
   const kp = document.getElementById("keyPoints");
   kp.innerHTML = "";
@@ -264,7 +278,7 @@ function renderNotes(notes, transcript) {
     kp.appendChild(li);
   });
   if (!notes.key_points || notes.key_points.length === 0) {
-    kp.innerHTML = "<li><em>None identified</em></li>";
+    kp.innerHTML = "<li>None identified</li>";
   }
 
   const ai = document.getElementById("actionItems");
@@ -275,7 +289,7 @@ function renderNotes(notes, transcript) {
     ai.appendChild(li);
   });
   if (!notes.action_items || notes.action_items.length === 0) {
-    ai.innerHTML = "<li><em>None identified</em></li>";
+    ai.innerHTML = "<li>None identified</li>";
   }
 
   resultsEl.classList.remove("hidden");

@@ -4,112 +4,157 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Notes Summarizer — Voice to Structured Notes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
   <div class="app">
+
     <header>
+      <div class="logo-badge">
+        <span class="dot"></span> AI-Powered
+      </div>
       <h1>Notes Summarizer</h1>
-      <p class="subtitle">Speak or upload audio → get a clean transcript + AI summary</p>
+      <p class="subtitle">Speak, upload, or paste — get structured notes and a clean summary in seconds.</p>
+      <div class="header-pills">
+        <span class="pill"><span class="pill-icon">🎙️</span> Live recording</span>
+        <span class="pill"><span class="pill-icon">📁</span> File upload</span>
+        <span class="pill"><span class="pill-icon">✨</span> AI summary</span>
+        <span class="pill"><span class="pill-icon">⬇</span> Markdown export</span>
+      </div>
     </header>
 
     <main>
-      <section class="panel input-panel">
-        <h2>1. Capture audio</h2>
 
-        <div class="record-row">
-          <button id="recordBtn" class="btn btn-primary">
-            <span id="recordIcon">●</span> <span id="recordLabel">Start Recording</span>
-          </button>
-          <span id="recordStatus" class="status">Idle</span>
-          <span id="recordTimer" class="timer hidden">0:00</span>
+      <!-- ── Input panel ── -->
+      <section class="panel input-panel">
+        <div class="panel-label">
+          <span class="step-num">1</span>
+          <h2>Capture audio</h2>
+        </div>
+
+        <!-- Record -->
+        <div class="record-area" id="recordArea">
+          <div class="mic-btn-wrap">
+            <div class="mic-ring"></div>
+            <div class="mic-ring"></div>
+            <button id="recordBtn" title="Start / stop recording">🎙️</button>
+          </div>
+          <div class="record-meta">
+            <span id="recordLabel">Start Recording</span>
+            <span id="recordStatus">Idle</span>
+            <span id="recordTimer" class="hidden">0:00</span>
+          </div>
         </div>
 
         <div class="divider">or</div>
 
-        <label class="upload-row">
+        <!-- Upload -->
+        <label class="upload-btn">
           <input type="file" id="audioUpload" accept="audio/*" hidden />
-          <span class="btn btn-secondary">📁 Upload audio file</span>
+          <span>📁</span> Upload audio file
         </label>
         <p id="uploadFileName" class="file-name"></p>
 
-        <div class="divider">or paste / edit transcript directly</div>
+        <div class="divider">or type / paste</div>
 
+        <!-- Transcript -->
         <div class="transcript-header">
           <span class="section-label">Transcript</span>
           <span id="wordCount" class="word-count">0 words</span>
         </div>
-        <textarea id="transcriptBox" placeholder="Your transcript will appear here. You can also type or paste text directly..."></textarea>
+        <textarea id="transcriptBox" placeholder="Your transcript will appear here — or type directly…"></textarea>
 
+        <!-- Actions -->
         <div class="action-row">
-          <button id="summarizeBtn" class="btn btn-primary flex-1">✨ Generate Summary</button>
-          <button id="clearBtn" class="btn btn-secondary" title="Clear transcript and results">✕ Clear</button>
+          <button id="summarizeBtn" class="btn btn-primary">✨ Generate Summary</button>
+          <button id="clearBtn" class="btn btn-ghost" title="Clear everything">✕ Clear</button>
         </div>
         <p id="errorMsg" class="error-msg"></p>
       </section>
 
+      <!-- ── Output panel ── -->
       <section class="panel output-panel">
         <div class="output-header">
-          <h2>2. Results</h2>
-          <button id="downloadBtn" class="btn btn-secondary hidden" title="Download notes as Markdown">⬇ Download</button>
+          <div class="panel-label">
+            <span class="step-num">2</span>
+            <h2>Your notes</h2>
+          </div>
+          <button id="downloadBtn" class="btn btn-ghost hidden">⬇ Download .md</button>
         </div>
 
+        <!-- Loading -->
         <div id="loading" class="loading hidden">
-          <div class="spinner"></div>
-          <span id="loadingText">Working...</span>
+          <div class="loading-spinner"></div>
+          <span id="loadingText">Working…</span>
         </div>
 
+        <!-- Results -->
         <div id="results" class="hidden">
-          <div class="result-title-row">
+
+          <div class="note-title-row">
             <h3 id="noteTitle"></h3>
-            <button class="copy-btn" data-target="noteTitle" title="Copy title">⎘</button>
+            <button class="copy-btn" data-target="noteTitle" title="Copy title">⎘ Copy</button>
           </div>
 
           <div class="result-block">
             <div class="result-block-header">
-              <h4>Summary</h4>
-              <button class="copy-btn" data-target="summaryText" title="Copy summary">⎘</button>
+              <span class="result-block-label"><span class="label-icon">📝</span> Summary</span>
+              <button class="copy-btn" data-target="summaryText">⎘ Copy</button>
             </div>
             <p id="summaryText"></p>
           </div>
 
           <div class="result-block">
             <div class="result-block-header">
-              <h4>Key Points</h4>
-              <button class="copy-btn" data-target="keyPoints" title="Copy key points">⎘</button>
+              <span class="result-block-label"><span class="label-icon">💡</span> Key Points</span>
+              <button class="copy-btn" data-target="keyPoints">⎘ Copy</button>
             </div>
             <ul id="keyPoints"></ul>
           </div>
 
           <div class="result-block">
             <div class="result-block-header">
-              <h4>Action Items</h4>
-              <button class="copy-btn" data-target="actionItems" title="Copy action items">⎘</button>
+              <span class="result-block-label"><span class="label-icon">✅</span> Action Items</span>
+              <button class="copy-btn" data-target="actionItems">⎘ Copy</button>
             </div>
             <ul id="actionItems"></ul>
           </div>
 
           <div class="result-block">
             <div class="result-block-header">
-              <h4>Full Transcript</h4>
-              <button class="copy-btn" data-target="fullTranscript" title="Copy transcript">⎘</button>
+              <span class="result-block-label"><span class="label-icon">🗒️</span> Full Transcript</span>
+              <div style="display:flex;gap:6px">
+                <button class="transcript-toggle" id="transcriptToggle">▸ Show</button>
+                <button class="copy-btn" data-target="fullTranscript">⎘ Copy</button>
+              </div>
             </div>
-            <details>
-              <summary>Show / hide full transcript</summary>
-              <p id="fullTranscript" class="transcript-text"></p>
-            </details>
+            <p id="fullTranscript" class="transcript-text hidden"></p>
           </div>
+
         </div>
 
-        <p id="emptyState" class="empty-state">Your structured notes will show up here once you generate a summary.</p>
+        <!-- Empty state -->
+        <div id="emptyState" class="empty-state">
+          <span class="empty-icon">🗒️</span>
+          <span>Your structured notes will appear here once you generate a summary.</span>
+        </div>
+
       </section>
     </main>
 
     <footer>
-      <p>Speech-to-text: Browser Web Speech API (live) / Groq Whisper (uploads) · Summarization: Groq Llama 3.3</p>
+      <div class="footer-pills">
+        <span class="footer-tag">🎙 Groq Whisper — transcription</span>
+        <span class="footer-tag">🤖 Llama 3.3 70B — summarization</span>
+        <span class="footer-tag">🌐 Browser Web Speech API</span>
+      </div>
+      <span>Free tier · No sign-up required</span>
     </footer>
-  </div>
 
+  </div>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
