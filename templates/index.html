@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Notes Summarizer — Voice to Structured Notes</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>Notes Summarizer</h1>
+      <p class="subtitle">Speak or upload audio → get a clean transcript + AI summary</p>
+    </header>
+
+    <main>
+      <section class="panel input-panel">
+        <h2>1. Capture audio</h2>
+
+        <div class="record-row">
+          <button id="recordBtn" class="btn btn-primary">
+            <span id="recordIcon">●</span> <span id="recordLabel">Start Recording</span>
+          </button>
+          <span id="recordStatus" class="status">Idle</span>
+          <span id="recordTimer" class="timer hidden">0:00</span>
+        </div>
+
+        <div class="divider">or</div>
+
+        <label class="upload-row">
+          <input type="file" id="audioUpload" accept="audio/*" hidden />
+          <span class="btn btn-secondary">📁 Upload audio file</span>
+        </label>
+        <p id="uploadFileName" class="file-name"></p>
+
+        <div class="divider">or paste / edit transcript directly</div>
+
+        <div class="transcript-header">
+          <span class="section-label">Transcript</span>
+          <span id="wordCount" class="word-count">0 words</span>
+        </div>
+        <textarea id="transcriptBox" placeholder="Your transcript will appear here. You can also type or paste text directly..."></textarea>
+
+        <div class="action-row">
+          <button id="summarizeBtn" class="btn btn-primary flex-1">✨ Generate Summary</button>
+          <button id="clearBtn" class="btn btn-secondary" title="Clear transcript and results">✕ Clear</button>
+        </div>
+        <p id="errorMsg" class="error-msg"></p>
+      </section>
+
+      <section class="panel output-panel">
+        <div class="output-header">
+          <h2>2. Results</h2>
+          <button id="downloadBtn" class="btn btn-secondary hidden" title="Download notes as Markdown">⬇ Download</button>
+        </div>
+
+        <div id="loading" class="loading hidden">
+          <div class="spinner"></div>
+          <span id="loadingText">Working...</span>
+        </div>
+
+        <div id="results" class="hidden">
+          <div class="result-title-row">
+            <h3 id="noteTitle"></h3>
+            <button class="copy-btn" data-target="noteTitle" title="Copy title">⎘</button>
+          </div>
+
+          <div class="result-block">
+            <div class="result-block-header">
+              <h4>Summary</h4>
+              <button class="copy-btn" data-target="summaryText" title="Copy summary">⎘</button>
+            </div>
+            <p id="summaryText"></p>
+          </div>
+
+          <div class="result-block">
+            <div class="result-block-header">
+              <h4>Key Points</h4>
+              <button class="copy-btn" data-target="keyPoints" title="Copy key points">⎘</button>
+            </div>
+            <ul id="keyPoints"></ul>
+          </div>
+
+          <div class="result-block">
+            <div class="result-block-header">
+              <h4>Action Items</h4>
+              <button class="copy-btn" data-target="actionItems" title="Copy action items">⎘</button>
+            </div>
+            <ul id="actionItems"></ul>
+          </div>
+
+          <div class="result-block">
+            <div class="result-block-header">
+              <h4>Full Transcript</h4>
+              <button class="copy-btn" data-target="fullTranscript" title="Copy transcript">⎘</button>
+            </div>
+            <details>
+              <summary>Show / hide full transcript</summary>
+              <p id="fullTranscript" class="transcript-text"></p>
+            </details>
+          </div>
+        </div>
+
+        <p id="emptyState" class="empty-state">Your structured notes will show up here once you generate a summary.</p>
+      </section>
+    </main>
+
+    <footer>
+      <p>Speech-to-text: Browser Web Speech API (live) / Groq Whisper (uploads) · Summarization: Groq Llama 3.3</p>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
