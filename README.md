@@ -1,127 +1,143 @@
 # 🎙️ Notes Summarizer
 
-Convert spoken audio into clean, structured notes — transcript + AI summary —
-in a single page, no sign-up required.
+> Turn your voice into structured, actionable notes — instantly.
 
-## How it works (architecture)
+**[▶ Try it live](https://ai-notes-summarizer-b3mk.onrender.com)**
+
+Speak into your mic, upload an audio file, or paste a transcript. The app transcribes your speech and uses AI to generate a clean title, summary, key points, and action items — no sign-up required.
+
+---
+
+## How it works
 
 ```
-┌────────────┐     ┌──────────────────────────┐      ┌───────────────────┐
-│  Browser   │     │  Flask backend (app.py)  │      │     Groq API       │
-│            │     │                          │      │                    │
-│ Web Speech │──A──▶  (live mic: no call      │      │                    │
-│   API      │     │   needed, done in-browser)│      │                    │
-│            │     │                          │      │                    │
-│ File upload│──B──▶ /api/transcribe ─────────┼──────▶ whisper-large-v3   │
-│            │     │                          │      │   -turbo           │
-│            │◀────┼──────────────────────────┤      │                    │
-│            │     │                          │      │                    │
-│ "Generate  │──C──▶ /api/summarize ───────────┼──────▶ llama-3.3-70b      │
-│  Summary"  │     │   (JSON-mode prompt)     │      │   -versatile        │
-│            │◀────┼──────────────────────────┤      │                    │
-└────────────┘     └──────────────────────────┘      └───────────────────┘
+Browser                     Flask Backend               Groq API
+──────────────────────────────────────────────────────────────────
+🎤 Live mic (Web Speech API)
+   └─ transcript in-browser ──────────────────────────────────────▶ (no call needed)
+
+📁 Audio file upload ──────▶ /api/transcribe ──────────────────▶ whisper-large-v3-turbo
+                      ◀── transcript ─────────────────────────────
+
+✨ "Generate Summary" ─────▶ /api/summarize ───────────────────▶ llama-3.3-70b-versatile
+                      ◀── {title, summary, key_points, actions} ─
 ```
 
-**Two speech-to-text paths** are supported:
+**Two paths to a transcript:**
 
-1. **Live recording (Path A)** — uses the browser's built-in `Web Speech API`
-   (`webkitSpeechRecognition`). This is free, instant, and requires no server
-   round-trip or API key, but only works in Chromium-based browsers
-   (Chrome/Edge).
-2. **File upload (Path B)** — for any audio file (or browsers without Web
-   Speech support), the file is sent to the Flask backend, which transcribes
-   it using **Groq's hosted Whisper (`whisper-large-v3-turbo`)** — free tier,
-   fast, accurate.
+| Path | When to use | How it works |
+|------|-------------|--------------|
+| 🎤 Live mic | Quick notes, meetings, voice memos | Browser's built-in Web Speech API — free, no server round-trip. Works best in Chrome/Edge. |
+| 📁 File upload | Pre-recorded audio, any browser | Sent to the backend and transcribed by Groq's Whisper model — handles mp3, wav, m4a, webm, and more. |
 
-Either path populates an editable transcript box. You can also just type or
-paste text directly. Clicking **Generate Summary** sends the transcript to
-`/api/summarize`, which prompts **Groq's `llama-3.3-70b-versatile`** model
-(in JSON mode) to return a title, summary, key points, and action items.
+Either way, the transcript lands in an editable box — fix any errors before summarizing for best results.
+
+---
+
+## Features
+
+- **Record live** with one click — auto-restarts if the browser cuts off mid-session
+- **Upload any audio file** up to 25 MB — transcribed server-side via Groq Whisper
+- **Paste or type** directly — no audio required
+- **Structured AI notes** — title, summary, key points, and action items every time
+- **Copy buttons** on every output section
+- **Download as Markdown** — exports a `.md` file with action item checkboxes
+- **Live word count** and **recording timer**
+- **Clear/reset** in one click
+
+---
 
 ## Tech stack
 
-- **Backend:** Python, Flask, Gunicorn
-- **Frontend:** Vanilla HTML/CSS/JS (no build step, no framework)
-- **Speech-to-text:** Browser Web Speech API (live) + Groq Whisper API (uploads)
-- **Summarization LLM:** Groq Llama 3.3 70B (free tier)
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python, Flask, Gunicorn |
+| Frontend | Vanilla HTML / CSS / JS — no build step |
+| Speech-to-text | Browser Web Speech API (live) + Groq Whisper `whisper-large-v3-turbo` (uploads) |
+| Summarization | Groq `llama-3.3-70b-versatile` (JSON mode) |
+| Hosting | [Render](https://render.com) free tier |
+
+---
 
 ## Project structure
 
 ```
 notes-summarizer/
-├── app.py                 # Flask backend & API routes
+├── app.py              # Flask backend — API routes & Groq calls
 ├── requirements.txt
-├── Procfile                # gunicorn start command
-├── render.yaml              # Render.com deploy config
-├── .env.example
+├── Procfile            # gunicorn start command
+├── render.yaml         # Render.com deploy config
+├── .env.example        # copy to .env and add your key
 ├── templates/
-│   └── index.html          # single-page UI
+│   └── index.html      # single-page UI
 └── static/
     ├── style.css
-    └── script.js            # recording, upload, fetch calls, rendering
+    └── script.js       # recording, upload, fetch calls, rendering
 ```
 
-## Setup (local)
+---
 
-1. **Get a free Groq API key:** https://console.groq.com/keys
+## Local setup
 
-2. **Clone and install:**
-   ```bash
-   git clone <your-repo-url>
-   cd notes-summarizer
-   python -m venv venv && source venv/bin/activate   # optional but recommended
-   pip install -r requirements.txt
-   ```
+**1. Get a free Groq API key**
+→ [console.groq.com/keys](https://console.groq.com/keys)
 
-3. **Set your API key:**
-   ```bash
-   cp .env.example .env
-   # edit .env and paste your key, then:
-   export GROQ_API_KEY=your_key_here       # macOS/Linux
-   # set GROQ_API_KEY=your_key_here        # Windows (cmd)
-   ```
+**2. Clone and install**
+```bash
+git clone <your-repo-url>
+cd notes-summarizer
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
 
-4. **Run it:**
-   ```bash
-   python app.py
-   ```
-   Open http://localhost:5000
+**3. Configure your key**
+```bash
+cp .env.example .env
+# open .env and paste your GROQ_API_KEY
+```
 
-## Deployment (Render.com — free tier)
+**4. Run**
+```bash
+python app.py
+```
+Open [http://localhost:5000](http://localhost:5000)
 
-1. Push this repo to GitHub.
-2. On [Render](https://render.com), click **New + → Web Service**, connect
-   the repo. Render will auto-detect `render.yaml`, or set manually:
-   - **Build command:** `pip install -r requirements.txt`
-   - **Start command:** `gunicorn app:app`
-3. Add environment variable `GROQ_API_KEY` (your key) in the Render dashboard.
-4. Deploy. Your live URL will look like
-   `https://notes-summarizer.onrender.com`.
+---
 
-> Note: the free Render tier spins down after inactivity, so the first
-> request after idling may take ~30s to wake up.
+## Deployment
 
-### Alternative: Railway
+### Render (used for the live demo)
 
-Same idea — connect repo, set `GROQ_API_KEY`, start command
-`gunicorn app:app`.
+1. Push this repo to GitHub
+2. On [Render](https://render.com) → **New + → Web Service** → connect the repo
+3. Render auto-detects `render.yaml`. If setting manually:
+   - Build command: `pip install -r requirements.txt`
+   - Start command: `gunicorn app:app`
+4. Add `GROQ_API_KEY` in the Render environment variables dashboard
+5. Deploy — your URL will look like `https://your-app.onrender.com`
 
-## API endpoints
+> **Note:** the free Render tier spins down after inactivity. The first request after idle may take ~30 seconds to wake up.
 
-| Method | Route             | Purpose                                  |
-|--------|--------------------|-------------------------------------------|
-| GET    | `/`                | Serves the frontend                      |
-| GET    | `/api/health`       | Health check / confirms key is configured |
-| POST   | `/api/transcribe`   | `multipart/form-data` audio file → `{transcript}` |
-| POST   | `/api/summarize`    | `{transcript}` JSON → `{notes: {title, summary, key_points, action_items}}` |
+### Railway (alternative)
 
-## Notes on accuracy & design choices
+Same idea — connect repo, set `GROQ_API_KEY`, start command `gunicorn app:app`.
 
-- JSON mode is enforced on the summarization call so the response is always
-  parseable structured data, not freeform prose.
-- The system prompt explicitly forbids inventing facts not present in the
-  transcript, to keep summaries grounded.
-- Live mic transcription auto-restarts the recognizer if the browser session
-  times out mid-recording, so long recordings don't silently cut off.
-- The transcript box is always editable, so users can correct STT errors
-  before summarizing — this materially improves summary quality.
+---
+
+## API reference
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| `GET` | `/` | Serves the frontend |
+| `GET` | `/api/health` | Health check — confirms API key is set |
+| `POST` | `/api/transcribe` | `multipart/form-data` audio → `{ transcript }` |
+| `POST` | `/api/summarize` | `{ transcript }` → `{ notes: { title, summary, key_points, action_items } }` |
+
+---
+
+## Design decisions
+
+- **JSON mode** is enforced on the summarization call so the response is always parseable — no markdown fences, no freeform prose to strip.
+- The system prompt explicitly forbids inventing facts not present in the transcript, keeping summaries grounded.
+- The transcript box is always editable before summarizing — correcting STT errors here materially improves output quality.
+- File uploads are capped at 25 MB client-side and server-side (Whisper's limit).
