@@ -10,27 +10,22 @@ Speak into your mic, upload an audio file, or paste a transcript. The app transc
 
 ## How it works
 
-```
-Browser                     Flask Backend               Groq API
-──────────────────────────────────────────────────────────────────
-🎤 Live mic (Web Speech API)
-   └─ transcript in-browser ──────────────────────────────────────▶ (no call needed)
+**Step 1 — Get a transcript**
 
-📁 Audio file upload ──────▶ /api/transcribe ──────────────────▶ whisper-large-v3-turbo
-                      ◀── transcript ─────────────────────────────
+| Option | How |
+|--------|-----|
+| 🎤 Live mic | Click **Start Recording** — browser transcribes speech instantly (Chrome/Edge) |
+| 📁 Upload file | Pick an audio file → backend sends it to Groq Whisper → transcript returned |
+| ✏️ Type / paste | Skip audio entirely and type directly into the transcript box |
 
-✨ "Generate Summary" ─────▶ /api/summarize ───────────────────▶ llama-3.3-70b-versatile
-                      ◀── {title, summary, key_points, actions} ─
-```
+**Step 2 — Review & edit**
+The transcript appears in an editable box. Fix any errors before moving on — better input = better notes.
 
-**Two paths to a transcript:**
+**Step 3 — Generate summary**
+Click **✨ Generate Summary**. The transcript is sent to Groq's Llama 3.3 70B, which returns structured notes in seconds.
 
-| Path | When to use | How it works |
-|------|-------------|--------------|
-| 🎤 Live mic | Quick notes, meetings, voice memos | Browser's built-in Web Speech API — free, no server round-trip. Works best in Chrome/Edge. |
-| 📁 File upload | Pre-recorded audio, any browser | Sent to the backend and transcribed by Groq's Whisper model — handles mp3, wav, m4a, webm, and more. |
-
-Either way, the transcript lands in an editable box — fix any errors before summarizing for best results.
+**Step 4 — Use your notes**
+Copy individual sections, or click **⬇ Download** to save everything as a Markdown file.
 
 ---
 
